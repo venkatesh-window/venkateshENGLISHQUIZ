@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Castle Siege - Defend Against Demons</title>
+  <meta name="description" content="Face five demonic forces in an epic castle defense game. Answer questions to defeat demons and reclaim the throne in this medieval fantasy adventure." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cinzel', serif;
+      background: linear-gradient(135deg, hsl(220, 40%, 8%), hsl(280, 40%, 15%));
+      min-height: 100vh;
+      color: hsl(45, 100%, 95%);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      font-family: 'MedievalSharp', 'Cinzel', serif;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 20px hsla(45, 95%, 55%, 0.5), 0 0 40px hsla(45, 95%, 55%, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .hero-description {
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+
+    .level-indicators {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .level-indicator {
+      padding: 0.75rem 1.5rem;
+      background: hsl(220, 35%, 12%);
+      border: 2px solid hsl(350, 85%, 45%);
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 0 40px hsla(350, 85%, 45%, 0.5);
+    }
+
+    .start-button {
+      padding: 1rem 3rem;
+      font-size: 1.5rem;
+      font-family: 'MedievalSharp', serif;
+      background: hsl(45, 95%, 55%);
+      color: hsl(220, 40%, 8%);
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 40px hsla(45, 95%, 55%, 0.6);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .start-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px hsla(45, 95%, 55%, 0.8);
+    }
+
+    /* Game Board */
+    .game-board {
+      display: none;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .level-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 20px hsla(350, 85%, 45%, 0.5);
+    }
+
+    .health-bars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .health-container {
+      background: hsl(220, 35%, 12%);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      border: 2px solid hsl(220, 30%, 25%);
+    }
+
+    .health-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .health-bar {
+      height: 30px;
+      background: hsl(220, 30%, 20%);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 2px solid hsl(220, 30%, 25%);
+    }
+
+    .health-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    .demon-health .health-fill {
+      background: linear-gradient(135deg, hsl(350, 85%, 35%), hsl(0, 85%, 45%));
+      box-shadow: 0 0 20px hsla(350, 85%, 45%, 0.6);
+    }
+
+    .castle-health .health-fill {
+      background: linear-gradient(135deg, hsl(210, 50%, 40%), hsl(210, 50%, 50%));
+      box-shadow: 0 0 20px hsla(210, 50%, 40%, 0.6);
+    }
+
+    .question-card {
+      max-width: 800px;
+      margin: 0 auto 3rem;
+      background: linear-gradient(145deg, hsl(220, 35%, 12%), hsl(220, 30%, 18%));
+      padding: 2rem;
+      border-radius: 0.75rem;
+      border: 2px solid hsl(220, 30%, 25%);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .question-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .option-button {
+      padding: 1.25rem;
+      background: hsl(220, 35%, 12%);
+      border: 2px solid hsl(45, 95%, 55%);
+      border-radius: 0.75rem;
+      color: hsl(45, 100%, 95%);
+      font-size: 1.1rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option-button:hover {
+      background: hsl(220, 30%, 18%);
+      transform: translateX(10px);
+      box-shadow: 0 0 20px hsla(45, 95%, 55%, 0.4);
+    }
+
+    .progress-info {
+      text-align: center;
+      font-size: 1.1rem;
+      opacity: 0.8;
+      margin-top: 2rem;
+    }
+
+    /* Victory Screen */
+    .victory-screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .victory-title {
+      font-size: 4rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 20px hsla(45, 95%, 55%, 0.5);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .crown-icon {
+      font-size: 8rem;
+      margin-bottom: 2rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .victory-message {
+      font-size: 1.5rem;
+      margin-bottom: 3rem;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    .defeated-list {
+      background: hsl(220, 35%, 12%);
+      padding: 2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 3rem;
+      border: 2px solid hsl(45, 95%, 55%);
+    }
+
+    .defeated-item {
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: hsl(220, 30%, 18%);
+      border-radius: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .restart-button {
+      padding: 1rem 3rem;
+      font-size: 1.5rem;
+      font-family: 'MedievalSharp', serif;
+      background: hsl(45, 95%, 55%);
+      color: hsl(220, 40%, 8%);
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 40px hsla(45, 95%, 55%, 0.6);
+    }
+
+    .restart-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px hsla(45, 95%, 55%, 0.8);
+    }
+
+    /* Defeat Screen */
+    .defeat-screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, hsl(0, 40%, 8%), hsl(350, 40%, 15%));
+    }
+
+    .defeat-title {
+      font-size: 4rem;
+      margin-bottom: 2rem;
+      color: hsl(350, 85%, 45%);
+      text-shadow: 0 0 20px hsla(350, 85%, 45%, 0.5);
+    }
+
+    .skull-icon {
+      font-size: 8rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { 
+        box-shadow: 0 0 20px hsla(45, 95%, 55%, 0.4);
+        transform: scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 40px hsla(45, 95%, 55%, 0.8);
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: hsl(140, 70%, 50%);
+      color: white;
+    }
+
+    .toast.error {
+      background: hsl(0, 85%, 50%);
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+
+      .health-bars {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .question-text {
+        font-size: 1.2rem;
+      }
+
+      .victory-title, .defeat-title {
+        font-size: 2.5rem;
+      }
+
+      .crown-icon, .skull-icon {
+        font-size: 5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <!-- Hero Section -->
+  <div class="hero-section" id="heroSection">
+    <div class="container">
+      <h1 class="hero-title">⚔️ CASTLE SIEGE ⚔️</h1>
+      <p class="hero-subtitle">Defend Against the Demon Horde</p>
+      <p class="hero-description">
+        Five powerful demons have laid siege to the royal castle. Answer English grammar questions correctly to defend your fortress and defeat each demonic force. One wrong answer could mean the fall of your kingdom!
+      </p>
+      <div class="level-indicators">
+        <div class="level-indicator">👹 Level 1: Grammator</div>
+        <div class="level-indicator">👹 Level 2: Verbius</div>
+        <div class="level-indicator">👹 Level 3: Syntaxis</div>
+        <div class="level-indicator">👹 Level 4: Tensarus</div>
+        <div class="level-indicator">👹 Level 5: Conjugon</div>
+      </div>
+      <button class="start-button" onclick="startGame()">Begin the Battle</button>
+    </div>
+  </div>
+
+  <!-- Game Board -->
+  <div class="game-board" id="gameBoard">
+    <div class="container">
+      <div class="game-header">
+        <h2 class="level-title" id="levelTitle">Level 1: Grammator</h2>
+      </div>
+
+      <div class="health-bars">
+        <div class="health-container demon-health">
+          <div class="health-label">
+            <span id="demonName">Grammator</span>
+            <span id="demonHealthText">100/100</span>
+          </div>
+          <div class="health-bar">
+            <div class="health-fill" id="demonHealthFill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="health-container castle-health">
+          <div class="health-label">
+            <span>Your Castle</span>
+            <span id="castleHealthText">100/100</span>
+          </div>
+          <div class="health-bar">
+            <div class="health-fill" id="castleHealthFill" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-card" id="questionCard">
+        <div class="question-text" id="questionText"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+      </div>
+
+      <div class="progress-info" id="progressInfo"></div>
+    </div>
+  </div>
+
+  <!-- Victory Screen -->
+  <div class="victory-screen" id="victoryScreen">
+    <div class="container">
+      <h1 class="victory-title">👑 VICTORY! 👑</h1>
+      <div class="crown-icon">👑</div>
+      <p class="victory-message">
+        You have successfully defended the castle against all five demonic forces! The kingdom is safe once more, and you are hailed as the greatest defender of the realm.
+      </p>
+      <div class="defeated-list">
+        <h3 style="margin-bottom: 1rem;">Demons Defeated:</h3>
+        <div class="defeated-item">⚔️ Grammator - The Grammar Demon</div>
+        <div class="defeated-item">⚔️ Verbius - The Verb Demon</div>
+        <div class="defeated-item">⚔️ Syntaxis - The Syntax Demon</div>
+        <div class="defeated-item">⚔️ Tensarus - The Tense Demon</div>
+        <div class="defeated-item">⚔️ Conjugon - The Conjugation Demon</div>
+      </div>
+      <button class="restart-button" onclick="restartGame()">Defend Again</button>
+    </div>
+  </div>
+
+  <!-- Defeat Screen -->
+  <div class="defeat-screen" id="defeatScreen">
+    <div class="container">
+      <h1 class="defeat-title">💀 DEFEATED 💀</h1>
+      <div class="skull-icon">💀</div>
+      <p class="victory-message">
+        The castle has fallen to the demonic forces. Your kingdom lies in ruins. Will you rise again to defend your people?
+      </p>
+      <button class="restart-button" onclick="restartGame()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Game Data
+    const levels = [
+      {
+        level: 1,
+        demon: "Grammator",
+        questions: [
+          { text: "He ___ to school every day.", options: ["go", "goes", "going"], correct: 1 },
+          { text: "I ___ tea in the morning.", options: ["drink", "drinks", "drinking"], correct: 0 },
+          { text: "She ___ very fast.", options: ["run", "runs", "running"], correct: 1 },
+          { text: "We ___ football.", options: ["play", "plays", "playing"], correct: 0 },
+          { text: "The sun ___ in the east.", options: ["rise", "rises", "rising"], correct: 1 }
+        ]
+      },
+      {
+        level: 2,
+        demon: "Verbius",
+        questions: [
+          { text: "My father ___ in an office.", options: ["work", "works", "working"], correct: 1 },
+          { text: "Birds ___ in the sky.", options: ["fly", "flies", "flying"], correct: 0 },
+          { text: "The student ___ hard.", options: ["study", "studies", "studying"], correct: 1 },
+          { text: "He ___ a car.", options: ["drive", "drives", "driving"], correct: 1 },
+          { text: "They ___ TV at night.", options: ["watch", "watches", "watching"], correct: 0 }
+        ]
+      },
+      {
+        level: 3,
+        demon: "Syntaxis",
+        questions: [
+          { text: "My mother ___ tasty food.", options: ["cook", "cooks", "cooking"], correct: 1 },
+          { text: "Dogs ___ loudly.", options: ["bark", "barks", "barking"], correct: 0 },
+          { text: "The train ___ at 5 PM.", options: ["leave", "leaves", "leaving"], correct: 1 },
+          { text: "He ___ the guitar.", options: ["play", "plays", "playing"], correct: 1 },
+          { text: "The earth ___ around the sun.", options: ["move", "moves", "moving"], correct: 1 }
+        ]
+      },
+      {
+        level: 4,
+        demon: "Tensarus",
+        questions: [
+          { text: "He always ___ the truth.", options: ["tell", "tells", "telling"], correct: 1 },
+          { text: "Plants ___ water and sunlight.", options: ["need", "needs", "needing"], correct: 0 },
+          { text: "She ___ early in the morning.", options: ["wake", "wakes", "waking"], correct: 1 },
+          { text: "The shop ___ at 9 AM.", options: ["open", "opens", "opening"], correct: 1 },
+          { text: "I ___ my homework.", options: ["do", "does", "doing"], correct: 0 }
+        ]
+      },
+      {
+        level: 5,
+        demon: "Conjugon",
+        questions: [
+          { text: "The baby ___ when hungry.", options: ["cry", "cries", "crying"], correct: 1 },
+          { text: "He ___ English very well.", options: ["speak", "speaks", "speaking"], correct: 1 },
+          { text: "The river ___ slowly.", options: ["flow", "flows", "flowing"], correct: 1 },
+          { text: "She ___ her room every day.", options: ["clean", "cleans", "cleaning"], correct: 1 },
+          { text: "We ___ the bus at 7 AM.", options: ["take", "takes", "taking"], correct: 0 }
+        ]
+      }
+    ];
+
+    // Game State
+    let currentLevel = 0;
+    let currentQuestion = 0;
+    let demonHealth = 100;
+    let castleHealth = 100;
+
+    // Show Toast
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Start Game
+    function startGame() {
+      document.getElementById('heroSection').style.display = 'none';
+      document.getElementById('gameBoard').style.display = 'block';
+      loadLevel();
+    }
+
+    // Load Level
+    function loadLevel() {
+      currentQuestion = 0;
+      demonHealth = 100;
+      const level = levels[currentLevel];
+      document.getElementById('levelTitle').textContent = `Level ${level.level}: ${level.demon}`;
+      document.getElementById('demonName').textContent = level.demon;
+      updateHealthBars();
+      loadQuestion();
+    }
+
+    // Load Question
+    function loadQuestion() {
+      const level = levels[currentLevel];
+      const question = level.questions[currentQuestion];
+      
+      document.getElementById('questionText').textContent = question.text;
+      document.getElementById('progressInfo').textContent = 
+        `Question ${currentQuestion + 1} of ${level.questions.length}`;
+      
+      const optionsGrid = document.getElementById('optionsGrid');
+      optionsGrid.innerHTML = '';
+      
+      question.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-button';
+        button.textContent = option;
+        button.onclick = () => handleAnswer(index);
+        optionsGrid.appendChild(button);
+      });
+    }
+
+    // Handle Answer
+    function handleAnswer(selectedIndex) {
+      const level = levels[currentLevel];
+      const question = level.questions[currentQuestion];
+      
+      if (selectedIndex === question.correct) {
+        // Correct answer - damage demon
+        demonHealth -= 20;
+        showToast('Correct! The demon is wounded!', 'success');
+        
+        if (demonHealth <= 0) {
+          // Demon defeated
+          showToast(`${level.demon} has been defeated!`, 'success');
+          
+          setTimeout(() => {
+            currentLevel++;
+            if (currentLevel >= levels.length) {
+              // Victory!
+              showVictory();
+            } else {
+              // Next level
+              loadLevel();
+            }
+          }, 2000);
+        } else {
+          // Next question
+          currentQuestion++;
+          if (currentQuestion < level.questions.length) {
+            setTimeout(() => loadQuestion(), 1000);
+          }
+        }
+      } else {
+        // Wrong answer - castle takes damage
+        castleHealth -= 20;
+        showToast('Wrong! Your castle is damaged!', 'error');
+        document.getElementById('questionCard').classList.add('shake');
+        setTimeout(() => {
+          document.getElementById('questionCard').classList.remove('shake');
+        }, 500);
+        
+        if (castleHealth <= 0) {
+          // Game Over
+          setTimeout(() => showDefeat(), 1000);
+        }
+      }
+      
+      updateHealthBars();
+    }
+
+    // Update Health Bars
+    function updateHealthBars() {
+      document.getElementById('demonHealthFill').style.width = demonHealth + '%';
+      document.getElementById('demonHealthText').textContent = `${demonHealth}/100`;
+      document.getElementById('castleHealthFill').style.width = castleHealth + '%';
+      document.getElementById('castleHealthText').textContent = `${castleHealth}/100`;
+    }
+
+    // Show Victory
+    function showVictory() {
+      document.getElementById('gameBoard').style.display = 'none';
+      document.getElementById('victoryScreen').style.display = 'flex';
+    }
+
+    // Show Defeat
+    function showDefeat() {
+      document.getElementById('gameBoard').style.display = 'none';
+      document.getElementById('defeatScreen').style.display = 'flex';
+    }
+
+    // Restart Game
+    function restartGame() {
+      currentLevel = 0;
+      currentQuestion = 0;
+      demonHealth = 100;
+      castleHealth = 100;
+      document.getElementById('victoryScreen').style.display = 'none';
+      document.getElementById('defeatScreen').style.display = 'none';
+      document.getElementById('heroSection').style.display = 'flex';
+    }
+  </script>
+</body>
+</html>
